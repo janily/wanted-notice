@@ -1,0 +1,122 @@
+import * as THREE from "three";
+import type { LoadedAssets } from "./AssetManager";
+
+export class SceneManager {
+  readonly scene: THREE.Scene;
+  readonly camera: THREE.PerspectiveCamera;
+  readonly renderer: THREE.WebGLRenderer;
+  readonly noticeMesh: THREE.Mesh;
+  private readonly container: HTMLElement;
+  private readonly clock = new THREE.Clock();
+  private animationFrame = 0;
+
+  constructor(container: HTMLElement) {
+    this.container = container;
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0x121719);
+    this.scene.fog = new THREE.Fog(0x121719, 8, 32);
+
+    this.camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.1, 80);
+    this.camera.position.set(0, 1.65, 0);
+
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: "high-performance",
+    });
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1;
+    container.appendChild(this.renderer.domElement);
+
+    this.noticeMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.18, 1.58),
+      new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.82,
+        metalness: 0,
+        emissive: new THREE.Color(0x000000),
+      }),
+    );
+    this.noticeMesh.name = "main-wanted-notice";
+    this.noticeMesh.position.set(0, 1.7, -1.2);
+
+    this.addLights();
+  }
+
+  mountAssets(assets: LoadedAssets): void {
+    const street = assets.street.scene;
+    const board = assets.board.scene;
+    street.name = "old-street-store";
+    board.name = "community-board";
+    street.position.set(0, 0, 0);
+    board.position.set(0, 0, -1.8);
+
+    street.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.receiveShadow = true;
+      }
+    });
+
+    board.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    const material = this.noticeMesh.material;
+    if (material instanceof THREE.MeshStandardMaterial) {
+      material.map = assets.noticeTexture;
+      material.needsUpdate = true;
+    }
+
+    board.add(this.noticeMesh);
+    this.scene.add(street, board);
+  }
+
+  setNoticeHighlighted(highlighted: boolean): void {
+    const material = this.noticeMesh.material;
+    if (material instanceof THREE.MeshStandardMaterial) {
+      material.emissive.setHex(highlighted ? 0x35210c : 0x000000);
+    }
+  }
+
+  start(onFrame: (deltaSeconds: number) => void): void {
+    const tick = () => {
+      const delta = this.clock.getDelta();
+      onFrame(delta);
+      this.renderer.render(this.scene, this.camera);
+      this.animationFrame = window.requestAnimationFrame(tick);
+    };
+    tick();
+  }
+
+  resize(): void {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  }
+
+  dispose(): void {
+    window.cancelAnimationFrame(this.animationFrame);
+    this.scene.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.geometry.dispose();
+        const materials = Array.isArray(child.material) ? child.material : [child.material];
+        materials.forEach((material) => material.dispose());
+      }
+    });
+    this.renderer.dispose();
+    this.container.replaceChildren();
+  }
+
+  private addLights(): void {
+    this.scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    const sun = new THREE.DirectionalLight(0xfff2dc, 1.6);
+    sun.position.set(4, 8, 5);
+    this.scene.add(sun);
+  }
+}
