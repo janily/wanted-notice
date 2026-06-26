@@ -132,5 +132,24 @@ export class App {
   private render(): void {
     this.hud.render(this.state, this.status, this.message);
     this.detail.render(this.state);
+    this.renderOverlay();
+  }
+
+  private renderOverlay(): void {
+    this.shell.querySelector(".loading-screen")?.remove();
+    this.shell.querySelector(".error-screen")?.remove();
+
+    if (this.status === "ready") {
+      return;
+    }
+
+    const overlay = document.createElement("section");
+    overlay.className = this.status === "error" ? "error-screen" : "loading-screen";
+    overlay.setAttribute("role", this.status === "error" ? "alert" : "status");
+    overlay.innerHTML = `
+      <strong>${this.status === "error" ? "加载失败" : "加载中"}</strong>
+      <p>${this.message}</p>
+    `;
+    this.shell.appendChild(overlay);
   }
 }
