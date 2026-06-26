@@ -70,7 +70,7 @@ export class App {
 
       const resize = () => sceneManager.resize();
       const escapeClose = (event: KeyboardEvent) => {
-        if (event.code === "Escape" && this.state.isOpen) {
+        if ((event.code === "Escape" || event.key === "Escape" || event.key === "Esc") && this.state.isOpen) {
           this.closeNotice();
         }
       };
@@ -112,7 +112,7 @@ export class App {
     this.updateState(openNotice(this.state));
     this.player?.setPaused(true);
     const panel = this.detail.element;
-    const paper = panel.querySelector(".notice-detail__image");
+    const paper = panel.querySelector(".notice-detail__paper");
     if (paper instanceof Element) {
       this.animator.openNotice(panel, paper);
     }

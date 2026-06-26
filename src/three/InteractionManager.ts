@@ -65,7 +65,7 @@ export class InteractionManager {
 
     const targetPosition = new THREE.Vector3();
     this.noticeTarget.getWorldPosition(targetPosition);
-    return this.camera.position.distanceTo(targetPosition) <= 3.2;
+    return this.camera.position.distanceTo(targetPosition) <= 7.5;
   }
 
   isHovered(): boolean {

@@ -95,7 +95,8 @@ kbd {
 }
 
 .notice-detail[aria-hidden="true"] {
-  visibility: hidden;
+  opacity: 0 !important;
+  visibility: hidden !important;
   pointer-events: none;
 }
 

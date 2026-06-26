@@ -13,11 +13,11 @@ export class SceneManager {
   constructor(container: HTMLElement) {
     this.container = container;
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x121719);
-    this.scene.fog = new THREE.Fog(0x121719, 8, 32);
+    this.scene.background = new THREE.Color(0x15191a);
+    this.scene.fog = new THREE.Fog(0x15191a, 12, 42);
 
     this.camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.1, 80);
-    this.camera.position.set(0, 1.65, 0);
+    this.camera.position.set(0, 1.45, 4);
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -27,7 +27,7 @@ export class SceneManager {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1;
+    this.renderer.toneMappingExposure = 1.35;
     container.appendChild(this.renderer.domElement);
 
     this.noticeMesh = new THREE.Mesh(
@@ -40,7 +40,7 @@ export class SceneManager {
       }),
     );
     this.noticeMesh.name = "main-wanted-notice";
-    this.noticeMesh.position.set(0, 1.7, -1.2);
+    this.noticeMesh.position.set(0, 1.55, -2.45);
 
     this.addLights();
   }
@@ -50,8 +50,10 @@ export class SceneManager {
     const board = assets.board.scene;
     street.name = "old-street-store";
     board.name = "community-board";
-    street.position.set(0, 0, 0);
-    board.position.set(0, 0, -1.8);
+    street.position.set(-0.4, 0, -0.8);
+    street.scale.setScalar(2.45);
+    board.position.set(0, 0, -2.7);
+    board.scale.setScalar(2.6);
 
     street.traverse((child) => {
       if (child instanceof THREE.Mesh) {
@@ -72,8 +74,7 @@ export class SceneManager {
       material.needsUpdate = true;
     }
 
-    board.add(this.noticeMesh);
-    this.scene.add(street, board);
+    this.scene.add(street, board, this.noticeMesh);
   }
 
   setNoticeHighlighted(highlighted: boolean): void {
@@ -114,9 +115,13 @@ export class SceneManager {
   }
 
   private addLights(): void {
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-    const sun = new THREE.DirectionalLight(0xfff2dc, 1.6);
+    this.scene.add(new THREE.HemisphereLight(0xfff2dc, 0x1b2024, 1.1));
+    this.scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+    const sun = new THREE.DirectionalLight(0xfff2dc, 2.6);
     sun.position.set(4, 8, 5);
     this.scene.add(sun);
+    const fill = new THREE.DirectionalLight(0xb7d3ff, 0.8);
+    fill.position.set(-4, 3, 2);
+    this.scene.add(fill);
   }
 }
