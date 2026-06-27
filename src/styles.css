@@ -44,7 +44,6 @@ button {
 }
 
 .hud section,
-.loading-screen,
 .error-screen {
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(12, 17, 19, 0.72);
@@ -164,7 +163,6 @@ kbd {
   color: #f2c36b;
 }
 
-.loading-screen,
 .error-screen {
   position: fixed;
   inset: auto 24px 24px 24px;
