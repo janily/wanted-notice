@@ -16,7 +16,7 @@ describe("SceneManager layout", () => {
 
     expect(layout.board.position.x).toBeGreaterThan(2);
     expect(layout.notice.localPosition.z).toBeCloseTo(
-      -layout.board.rawFrontZ - layout.notice.surfaceOffset,
+      layout.board.rawFrontZ + layout.notice.surfaceOffset,
       2,
     );
     expect(layout.notice.localPosition.x).toBeGreaterThan(0);

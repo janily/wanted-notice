@@ -57,7 +57,7 @@ export function getSceneLayout(): SceneLayout {
       rawFrontHeight: boardRawFrontHeight,
     },
     notice: {
-      localPosition: new THREE.Vector3(0.12, 0.45, -boardRawFrontZ - noticeSurfaceOffset),
+      localPosition: new THREE.Vector3(0.12, 0.45, boardRawFrontZ + noticeSurfaceOffset),
       rotation: new THREE.Euler(0, 0, 0, "YXZ"),
       size: {
         width: 0.14,
