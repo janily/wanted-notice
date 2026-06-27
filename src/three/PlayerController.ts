@@ -16,6 +16,9 @@ const defaultBounds: PlayerBounds = {
   speed: 2.6,
 };
 
+const lookSensitivity = 0.0008;
+const maxLookDelta = 28;
+
 export class PlayerController {
   private readonly camera: THREE.PerspectiveCamera;
   private readonly bounds: PlayerBounds;
@@ -66,8 +69,11 @@ export class PlayerController {
       return;
     }
 
-    this.yaw -= movementX * 0.002;
-    this.pitch = THREE.MathUtils.clamp(this.pitch - movementY * 0.002, -0.72, 0.72);
+    const safeMovementX = THREE.MathUtils.clamp(movementX, -maxLookDelta, maxLookDelta);
+    const safeMovementY = THREE.MathUtils.clamp(movementY, -maxLookDelta, maxLookDelta);
+
+    this.yaw -= safeMovementX * lookSensitivity;
+    this.pitch = THREE.MathUtils.clamp(this.pitch - safeMovementY * lookSensitivity, -0.55, 0.55);
     this.camera.rotation.set(this.pitch, this.yaw, 0, "YXZ");
   }
 

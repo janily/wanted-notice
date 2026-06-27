@@ -42,4 +42,25 @@ describe("PlayerController", () => {
 
     expect(camera.rotation.y).toBeCloseTo(0.42);
   });
+
+  it("dampens large mouse deltas to avoid abrupt camera spins", () => {
+    const camera = new THREE.PerspectiveCamera();
+    const controller = new PlayerController(camera);
+
+    controller.look(1000, 1000);
+
+    expect(camera.rotation.y).toBeCloseTo(-0.0224);
+    expect(camera.rotation.x).toBeCloseTo(-0.0224);
+  });
+
+  it("limits vertical look range for steadier control", () => {
+    const camera = new THREE.PerspectiveCamera();
+    const controller = new PlayerController(camera);
+
+    for (let index = 0; index < 40; index += 1) {
+      controller.look(0, -28);
+    }
+
+    expect(camera.rotation.x).toBeCloseTo(0.55);
+  });
 });
