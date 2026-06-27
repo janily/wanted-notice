@@ -33,7 +33,7 @@ export function getSceneLayout(): SceneLayout {
   const streetScale = 2.45;
   const streetRawFloorY = -0.743;
   const boardScale = 2.1;
-  const boardRawFrontX = -0.315;
+  const boardRawFrontX = -0.237;
   const boardRawPanelHalfWidthZ = 0.513;
   const boardRawFrontHeight = 0.771;
   const noticeSurfaceOffset = 0.006;
