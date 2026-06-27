@@ -143,7 +143,7 @@ export class SceneManager {
       }
     });
 
-    this.paintNoticeOntoBoardTexture(board, assets.noticeTexture);
+    this.paintNoticeOntoBoardTexture(board, assets.noticeTexture, layout.notice);
 
     board.add(this.noticeMesh);
     this.scene.add(street, board);
@@ -184,7 +184,16 @@ export class SceneManager {
   }
 
 
-  private paintNoticeOntoBoardTexture(board: THREE.Object3D, noticeTexture: THREE.Texture): void {
+  private paintNoticeOntoBoardTexture(
+    board: THREE.Object3D,
+    noticeTexture: THREE.Texture,
+    noticeLayout: SceneLayout["notice"],
+  ): void {
+    const noticeUvRect = this.getNoticeUvRect(board, noticeLayout);
+    if (!noticeUvRect) {
+      return;
+    }
+
     board.traverse((child) => {
       if (!(child instanceof THREE.Mesh)) {
         return;
@@ -213,13 +222,11 @@ export class SceneManager {
         }
 
         context.drawImage(sourceImage, 0, 0, width, height);
-        context.drawImage(
-          noticeTexture.image as CanvasImageSource,
-          width * 0.6,
-          height * 0.2,
-          width * 0.13,
-          height * 0.24,
-        );
+        const noticeX = noticeUvRect.minU * width;
+        const noticeY = (1 - noticeUvRect.maxV) * height;
+        const noticeWidth = (noticeUvRect.maxU - noticeUvRect.minU) * width;
+        const noticeHeight = (noticeUvRect.maxV - noticeUvRect.minV) * height;
+        context.drawImage(noticeTexture.image as CanvasImageSource, noticeX, noticeY, noticeWidth, noticeHeight);
 
         const composedMap = new THREE.CanvasTexture(canvas);
         composedMap.colorSpace = sourceMap.colorSpace;
@@ -235,6 +242,48 @@ export class SceneManager {
         material.needsUpdate = true;
       });
     });
+  }
+
+  private getNoticeUvRect(
+    board: THREE.Object3D,
+    noticeLayout: SceneLayout["notice"],
+  ): { minU: number; maxU: number; minV: number; maxV: number } | null {
+    board.updateMatrixWorld(true);
+
+    const raycaster = new THREE.Raycaster();
+    const normal = new THREE.Vector3(0, 0, 1).applyEuler(noticeLayout.rotation).normalize();
+    const center = noticeLayout.localPosition.clone();
+    const halfWidth = noticeLayout.size.width / 2;
+    const halfHeight = noticeLayout.size.height / 2;
+    const localCorners = [
+      new THREE.Vector3(-halfWidth, -halfHeight, 0),
+      new THREE.Vector3(halfWidth, -halfHeight, 0),
+      new THREE.Vector3(halfWidth, halfHeight, 0),
+      new THREE.Vector3(-halfWidth, halfHeight, 0),
+    ];
+    const uvs: THREE.Vector2[] = [];
+
+    localCorners.forEach((corner) => {
+      const surfacePoint = corner.applyEuler(noticeLayout.rotation).add(center);
+      const worldPoint = surfacePoint.clone().applyMatrix4(board.matrixWorld);
+      const worldNormal = normal.clone().transformDirection(board.matrixWorld);
+      raycaster.set(worldPoint.clone().addScaledVector(worldNormal, 0.35), worldNormal.negate());
+      const hit = raycaster.intersectObject(board, true).find((intersection) => intersection.uv);
+      if (hit?.uv) {
+        uvs.push(hit.uv.clone());
+      }
+    });
+
+    if (uvs.length !== localCorners.length) {
+      return null;
+    }
+
+    return {
+      minU: Math.min(...uvs.map((uv) => uv.x)),
+      maxU: Math.max(...uvs.map((uv) => uv.x)),
+      minV: Math.min(...uvs.map((uv) => uv.y)),
+      maxV: Math.max(...uvs.map((uv) => uv.y)),
+    };
   }
 
   private addLights(): void {
