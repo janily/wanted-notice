@@ -5,14 +5,22 @@ export type PlayerBounds = {
   maxX: number;
   minZ: number;
   maxZ: number;
+  minYaw: number;
+  maxYaw: number;
+  minPitch: number;
+  maxPitch: number;
   speed: number;
 };
 
 const defaultBounds: PlayerBounds = {
-  minX: -6,
-  maxX: 6,
-  minZ: -8,
-  maxZ: 5,
+  minX: -2.6,
+  maxX: 3.6,
+  minZ: -4.5,
+  maxZ: 4.4,
+  minYaw: -0.92,
+  maxYaw: 0.52,
+  minPitch: -0.45,
+  maxPitch: 0.35,
   speed: 2.6,
 };
 
@@ -72,8 +80,16 @@ export class PlayerController {
     const safeMovementX = THREE.MathUtils.clamp(movementX, -maxLookDelta, maxLookDelta);
     const safeMovementY = THREE.MathUtils.clamp(movementY, -maxLookDelta, maxLookDelta);
 
-    this.yaw -= safeMovementX * lookSensitivity;
-    this.pitch = THREE.MathUtils.clamp(this.pitch - safeMovementY * lookSensitivity, -0.55, 0.55);
+    this.yaw = THREE.MathUtils.clamp(
+      this.yaw - safeMovementX * lookSensitivity,
+      this.bounds.minYaw,
+      this.bounds.maxYaw,
+    );
+    this.pitch = THREE.MathUtils.clamp(
+      this.pitch - safeMovementY * lookSensitivity,
+      this.bounds.minPitch,
+      this.bounds.maxPitch,
+    );
     this.camera.rotation.set(this.pitch, this.yaw, 0, "YXZ");
   }
 

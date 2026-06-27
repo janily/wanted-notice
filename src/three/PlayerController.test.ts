@@ -53,7 +53,7 @@ describe("PlayerController", () => {
     expect(camera.rotation.x).toBeCloseTo(-0.0224);
   });
 
-  it("limits vertical look range for steadier control", () => {
+  it("limits vertical look range to keep the scene in view", () => {
     const camera = new THREE.PerspectiveCamera();
     const controller = new PlayerController(camera);
 
@@ -61,6 +61,17 @@ describe("PlayerController", () => {
       controller.look(0, -28);
     }
 
-    expect(camera.rotation.x).toBeCloseTo(0.55);
+    expect(camera.rotation.x).toBeCloseTo(0.35);
+  });
+
+  it("limits horizontal look range to avoid empty scene edges", () => {
+    const camera = new THREE.PerspectiveCamera();
+    const controller = new PlayerController(camera);
+
+    for (let index = 0; index < 80; index += 1) {
+      controller.look(28, 0);
+    }
+
+    expect(camera.rotation.y).toBeCloseTo(-0.92);
   });
 });
