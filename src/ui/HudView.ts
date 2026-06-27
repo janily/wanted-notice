@@ -10,7 +10,7 @@ export class HudView {
 
   render(state: NoticeState, appStatus: "loading" | "ready" | "error", message = ""): void {
     const prompt = state.isNear ? "E / 点击 查看通缉令" : "靠近公告栏查看通缉令";
-    const statusMark = appStatus === "ready" ? "●" : "○";
+    const statusText = appStatus === "ready" ? "场景已就绪" : appStatus === "loading" ? "场景加载中" : "场景加载失败";
     this.element.innerHTML = `
       <section class="hud__title">
         <h1>中国社区 · 通缉令演示</h1>
@@ -24,10 +24,7 @@ export class HudView {
         <p><kbd>Esc</kbd> 退出详情</p>
         <p>滚轮缩放详情页</p>
       </section>
-      <section class="hud__status">
-        <strong>${statusMark} Three.js + TypeScript + Vite + GSAP</strong>
-        <p>${message || prompt}</p>
-      </section>
+      <p class="hud__prompt"><strong>${statusText}</strong> · ${message || prompt}</p>
     `;
   }
 }

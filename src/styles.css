@@ -73,6 +73,15 @@ button {
   color: rgba(244, 241, 234, 0.8);
 }
 
+.hud__prompt {
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(12, 17, 19, 0.58);
+  backdrop-filter: blur(10px);
+  padding: 10px 12px;
+}
+
 kbd {
   display: inline-grid;
   place-items: center;
