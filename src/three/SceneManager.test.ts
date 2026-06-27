@@ -22,7 +22,8 @@ describe("SceneManager layout", () => {
       2,
     );
     expect(Math.abs(layout.notice.localPosition.z)).toBeLessThan(layout.board.rawPanelHalfWidthZ);
-    expect(layout.notice.rotation.y).toBeCloseTo(-Math.PI / 2);
+    expect(layout.board.rawPanelSlopeXPerZ).toBeLessThan(0);
+    expect(layout.notice.rotation.y).toBeCloseTo(-Math.PI / 2 + Math.atan(layout.board.rawPanelSlopeXPerZ));
     expect(layout.notice.localPosition.y).toBeGreaterThan(layout.board.rawFrontHeight * 0.5);
     expect(layout.notice.localPosition.y).toBeLessThan(layout.board.rawFrontHeight * 0.7);
     expect(layout.notice.size.width).toBeLessThan(layout.board.rawPanelHalfWidthZ);

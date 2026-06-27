@@ -17,6 +17,7 @@ type SceneLayout = {
     rawFrontX: number;
     rawPanelHalfWidthZ: number;
     rawFrontHeight: number;
+    rawPanelSlopeXPerZ: number;
   };
   notice: {
     localPosition: THREE.Vector3;
@@ -36,6 +37,7 @@ export function getSceneLayout(): SceneLayout {
   const boardRawFrontX = -0.021;
   const boardRawPanelHalfWidthZ = 0.513;
   const boardRawFrontHeight = 0.771;
+  const boardRawPanelSlopeXPerZ = -0.052;
   const noticeSurfaceOffset = 0.006;
   const boardPosition = new THREE.Vector3(2.7, 0, -1.35);
 
@@ -55,10 +57,11 @@ export function getSceneLayout(): SceneLayout {
       rawFrontX: boardRawFrontX,
       rawPanelHalfWidthZ: boardRawPanelHalfWidthZ,
       rawFrontHeight: boardRawFrontHeight,
+      rawPanelSlopeXPerZ: boardRawPanelSlopeXPerZ,
     },
     notice: {
       localPosition: new THREE.Vector3(boardRawFrontX - noticeSurfaceOffset, 0.45, 0.12),
-      rotation: new THREE.Euler(0, -Math.PI / 2, 0, "YXZ"),
+      rotation: new THREE.Euler(0, -Math.PI / 2 + Math.atan(boardRawPanelSlopeXPerZ), 0, "YXZ"),
       size: {
         width: 0.14,
         height: 0.2,
