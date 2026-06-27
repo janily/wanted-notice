@@ -15,16 +15,15 @@ describe("SceneManager layout", () => {
     const layout = getSceneLayout();
 
     expect(layout.board.position.x).toBeGreaterThan(2);
-    expect(layout.notice.localPosition.z).toBeCloseTo(
-      layout.board.rawFrontZ + layout.notice.surfaceOffset,
+    expect(layout.notice.localPosition.x).toBeCloseTo(
+      layout.board.rawFrontX - layout.notice.surfaceOffset,
       2,
     );
-    expect(layout.notice.localPosition.x).toBeGreaterThan(0);
-    expect(layout.notice.localPosition.x).toBeLessThan(layout.board.rawFrontWidth / 2);
+    expect(Math.abs(layout.notice.localPosition.z)).toBeLessThan(layout.board.rawPanelHalfWidthZ);
+    expect(layout.notice.rotation.y).toBeCloseTo(-Math.PI / 2);
     expect(layout.notice.localPosition.y).toBeGreaterThan(layout.board.rawFrontHeight * 0.5);
     expect(layout.notice.localPosition.y).toBeLessThan(layout.board.rawFrontHeight * 0.7);
-    expect(layout.notice.rotation.y).toBeCloseTo(0);
-    expect(layout.notice.size.width).toBeLessThan(layout.board.rawFrontWidth / 3);
+    expect(layout.notice.size.width).toBeLessThan(layout.board.rawPanelHalfWidthZ);
     expect(layout.notice.size.height).toBeLessThan(layout.board.rawFrontHeight / 3);
   });
 
