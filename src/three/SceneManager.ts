@@ -228,7 +228,11 @@ export class SceneManager {
         const noticeY = sourceMap.flipY
           ? (1 - noticeUvRect.maxV) * height
           : noticeUvRect.minV * height;
-        context.drawImage(noticeTexture.image as CanvasImageSource, noticeX, noticeY, noticeWidth, noticeHeight);
+        context.save();
+        context.translate(noticeX, noticeY + noticeHeight);
+        context.scale(1, -1);
+        context.drawImage(noticeTexture.image as CanvasImageSource, 0, 0, noticeWidth, noticeHeight);
+        context.restore();
 
         const composedMap = new THREE.CanvasTexture(canvas);
         composedMap.colorSpace = sourceMap.colorSpace;
