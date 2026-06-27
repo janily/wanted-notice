@@ -32,4 +32,14 @@ describe("PlayerController", () => {
 
     expect(camera.position.x).toBe(0);
   });
+
+  it("keeps the camera initial yaw when looking starts", () => {
+    const camera = new THREE.PerspectiveCamera();
+    camera.rotation.set(0, 0.42, 0, "YXZ");
+    const controller = new PlayerController(camera);
+
+    controller.look(0, 0);
+
+    expect(camera.rotation.y).toBeCloseTo(0.42);
+  });
 });

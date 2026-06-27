@@ -1,6 +1,73 @@
 import * as THREE from "three";
 import type { LoadedAssets } from "./AssetManager";
 
+type SceneLayout = {
+  camera: {
+    position: THREE.Vector3;
+    target: THREE.Vector3;
+  };
+  street: {
+    position: THREE.Vector3;
+    scale: number;
+    rawFloorY: number;
+  };
+  board: {
+    position: THREE.Vector3;
+    scale: number;
+    rawFrontZ: number;
+    rawFrontWidth: number;
+    rawFrontHeight: number;
+  };
+  notice: {
+    localPosition: THREE.Vector3;
+    rotation: THREE.Euler;
+    size: {
+      width: number;
+      height: number;
+    };
+    surfaceOffset: number;
+  };
+};
+
+export function getSceneLayout(): SceneLayout {
+  const streetScale = 2.45;
+  const streetRawFloorY = -0.743;
+  const boardScale = 2.1;
+  const boardRawFrontZ = 0.513;
+  const boardRawFrontWidth = 0.63;
+  const boardRawFrontHeight = 0.771;
+  const noticeSurfaceOffset = 0.006;
+  const boardPosition = new THREE.Vector3(2.7, 0, -1.35);
+
+  return {
+    camera: {
+      position: new THREE.Vector3(-1.05, 1.65, 4.25),
+      target: new THREE.Vector3(2.15, 1.2, -0.85),
+    },
+    street: {
+      position: new THREE.Vector3(-0.4, -streetRawFloorY * streetScale, -0.8),
+      scale: streetScale,
+      rawFloorY: streetRawFloorY,
+    },
+    board: {
+      position: boardPosition,
+      scale: boardScale,
+      rawFrontZ: boardRawFrontZ,
+      rawFrontWidth: boardRawFrontWidth,
+      rawFrontHeight: boardRawFrontHeight,
+    },
+    notice: {
+      localPosition: new THREE.Vector3(0.12, 0.45, -boardRawFrontZ - noticeSurfaceOffset),
+      rotation: new THREE.Euler(0, 0, 0, "YXZ"),
+      size: {
+        width: 0.14,
+        height: 0.2,
+      },
+      surfaceOffset: noticeSurfaceOffset,
+    },
+  };
+}
+
 export class SceneManager {
   readonly scene: THREE.Scene;
   readonly camera: THREE.PerspectiveCamera;
@@ -17,7 +84,9 @@ export class SceneManager {
     this.scene.fog = new THREE.Fog(0x15191a, 12, 42);
 
     this.camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.1, 80);
-    this.camera.position.set(0, 1.45, 4);
+    const layout = getSceneLayout();
+    this.camera.position.copy(layout.camera.position);
+    this.camera.lookAt(layout.camera.target);
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -31,29 +100,32 @@ export class SceneManager {
     container.appendChild(this.renderer.domElement);
 
     this.noticeMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.18, 1.58),
+      new THREE.PlaneGeometry(layout.notice.size.width, layout.notice.size.height),
       new THREE.MeshStandardMaterial({
         color: 0xffffff,
         roughness: 0.82,
         metalness: 0,
         emissive: new THREE.Color(0x000000),
+        side: THREE.DoubleSide,
       }),
     );
     this.noticeMesh.name = "main-wanted-notice";
-    this.noticeMesh.position.set(0, 1.55, -2.45);
+    this.noticeMesh.position.copy(layout.notice.localPosition);
+    this.noticeMesh.rotation.copy(layout.notice.rotation);
 
     this.addLights();
   }
 
   mountAssets(assets: LoadedAssets): void {
+    const layout = getSceneLayout();
     const street = assets.street.scene;
     const board = assets.board.scene;
     street.name = "old-street-store";
     board.name = "community-board";
-    street.position.set(-0.4, 0, -0.8);
-    street.scale.setScalar(2.45);
-    board.position.set(0, 0, -2.7);
-    board.scale.setScalar(2.6);
+    street.position.copy(layout.street.position);
+    street.scale.setScalar(layout.street.scale);
+    board.position.copy(layout.board.position);
+    board.scale.setScalar(layout.board.scale);
 
     street.traverse((child) => {
       if (child instanceof THREE.Mesh) {
@@ -74,7 +146,8 @@ export class SceneManager {
       material.needsUpdate = true;
     }
 
-    this.scene.add(street, board, this.noticeMesh);
+    board.add(this.noticeMesh);
+    this.scene.add(street, board);
   }
 
   setNoticeHighlighted(highlighted: boolean): void {

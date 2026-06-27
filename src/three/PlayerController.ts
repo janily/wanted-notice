@@ -27,6 +27,8 @@ export class PlayerController {
   constructor(camera: THREE.PerspectiveCamera, bounds: Partial<PlayerBounds> = {}) {
     this.camera = camera;
     this.bounds = { ...defaultBounds, ...bounds };
+    this.yaw = camera.rotation.y;
+    this.pitch = camera.rotation.x;
   }
 
   bind(target: Window = window): () => void {
